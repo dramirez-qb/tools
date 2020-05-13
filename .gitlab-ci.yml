@@ -1,0 +1,19 @@
+image: dxas90/ci-tools:v0.0.1
+variables:
+  KUBECTL: v1.18.2
+  KIND: v0.8.1
+  DOCKER_HOST: tcp://docker:2376
+  DOCKER_DRIVER: overlay2
+services:
+  - docker:19.03.8-dind
+stages:
+  - test
+test:
+  stage: test
+  before_script:
+    - kind create cluster --config=./.gitlab/kind-config.yaml
+    - sed -i -E -e 's/localhost|0\.0\.0\.0/docker/g' "$HOME/.kube/config"
+  script:
+    - kubectl get nodes -o wide
+    - kubectl get pods --all-namespaces -o wide
+    - kubectl get services --all-namespaces -o wide
